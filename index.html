@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conference Tracker 2026-2027</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #111827;
+      --muted: #64748b;
+      --line: #d9dee7;
+      --soft: #eef2f7;
+      --accent: #155eef;
+      --deadline: #c2410c;
+      --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .shell {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 40px;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .subline {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    .updated {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    select,
+    input {
+      min-height: 42px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 0 12px;
+      font: inherit;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat b {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .stat span { color: var(--muted); font-size: 13px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.62fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 58px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    #map { height: min(68vh, 680px); min-height: 470px; }
+    #calendar { padding: 14px; }
+
+    .fc {
+      --fc-border-color: var(--line);
+      --fc-page-bg-color: var(--panel);
+      --fc-neutral-bg-color: var(--soft);
+      --fc-today-bg-color: #fff7ed;
+      font-size: 14px;
+    }
+
+    .fc .fc-button {
+      border-radius: 7px;
+      border-color: #cbd5e1;
+      background: #ffffff;
+      color: var(--ink);
+      text-transform: none;
+      box-shadow: none;
+    }
+
+    .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .fc .fc-button-primary:not(:disabled):active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #ffffff;
+    }
+
+    .fc .fc-toolbar-title { font-size: 18px; }
+
+    .details { padding: 16px; }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .detail-title {
+      margin: 4px 0 14px;
+      font-size: 24px;
+      line-height: 1.15;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 8px 12px;
+      font-size: 14px;
+    }
+
+    .detail-grid dt { color: var(--muted); font-weight: 650; }
+    .detail-grid dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
+    .note {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffdf7;
+      color: #5f4b10;
+      font-size: 14px;
+    }
+
+    .table-panel { margin-top: 16px; }
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      background: #fbfcfe;
+    }
+
+    tbody tr { cursor: pointer; }
+    tbody tr:hover { background: #f8fafc; }
+    .muted { color: var(--muted); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pill.confirmed,
+    .pill.confirmed_dates,
+    .pill.confirmed_city { background: #e8f5ee; color: #166534; }
+    .pill.tbd { background: #f1f5f9; color: #475569; }
+
+    .leaflet-popup-content { margin: 12px 14px; min-width: 240px; }
+    .popup-title { font-weight: 800; font-size: 16px; margin-bottom: 8px; }
+
+    .popup-row {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 13px;
+    }
+
+    .popup-row span:first-child { color: var(--muted); font-weight: 700; }
+
+    @media (max-width: 1120px) {
+      .grid { grid-template-columns: 1fr; }
+      #map { height: 520px; }
+    }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 20px, 1480px); padding-top: 14px; }
+      .topbar,
+      .filters,
+      .stats { grid-template-columns: 1fr; }
+      h1 { font-size: 30px; }
+      .panel-head { align-items: flex-start; flex-direction: column; }
+      #map { height: 430px; min-height: 430px; }
+      #calendar { padding: 8px; }
+      .fc .fc-toolbar { align-items: stretch; flex-direction: column; gap: 8px; }
+      .detail-grid { grid-template-columns: 96px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <div>
+        <h1>Conference Tracker 2026-2027</h1>
+        <p class="subline">ICRA, IROS, CoRL, CHI, and HMI/ICHMI deadlines, locations, and conference dates.</p>
+      </div>
+      <div class="updated" id="updated">Updated: loading</div>
+    </div>
+
+    <section class="filters" aria-label="Filters">
+      <label>Conference<select id="conferenceFilter"></select></label>
+      <label>Year<select id="yearFilter"></select></label>
+      <label>Status<select id="statusFilter"></select></label>
+      <label>Search<input id="searchFilter" type="search" placeholder="City, venue, note"></label>
+    </section>
+
+    <section class="stats" aria-label="Summary">
+      <div class="stat"><b id="countAll">0</b><span>entries</span></div>
+      <div class="stat"><b id="countMapped">0</b><span>mapped locations</span></div>
+      <div class="stat"><b id="countDeadlines">0</b><span>paper deadlines</span></div>
+      <div class="stat"><b id="countTbd">0</b><span>TBD records</span></div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">OpenStreetMap Locations</h2>
+          <div class="legend" id="mapLegend"></div>
+        </div>
+        <div id="map" aria-label="Conference location map"></div>
+      </div>
+
+      <aside class="panel">
+        <div class="panel-head"><h2 class="panel-title">Selected Record</h2></div>
+        <div class="details" id="details"></div>
+      </aside>
+    </section>
+
+    <section class="panel table-panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Calendar</h2>
+        <div class="legend">
+          <span class="legend-item" style="color: var(--deadline)"><span class="dot"></span>Deadline</span>
+          <span class="legend-item" style="color: var(--accent)"><span class="dot"></span>Conference</span>
+        </div>
+      </div>
+      <div id="calendar" aria-label="Conference calendar"></div>
+    </section>
+
+    <section class="panel table-panel">
+      <div class="panel-head"><h2 class="panel-title">Data</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Year</th><th>Due</th><th>City</th><th>Country</th>
+              <th>Conference Date</th><th>Venue</th><th>Source</th><th>Status</th><th>Note</th>
+            </tr>
+          </thead>
+          <tbody id="dataRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const COLORS = { ICRA: "#155eef", IROS: "#0f766e", CoRL: "#b45309", CHI: "#7c3aed", HMI: "#be123c" };
+    const state = { all: [], filtered: [], map: null, markerLayer: null, calendar: null };
+    const els = {
+      updated: document.querySelector("#updated"), conferenceFilter: document.querySelector("#conferenceFilter"),
+      yearFilter: document.querySelector("#yearFilter"), statusFilter: document.querySelector("#statusFilter"),
+      searchFilter: document.querySelector("#searchFilter"), countAll: document.querySelector("#countAll"),
+      countMapped: document.querySelector("#countMapped"), countDeadlines: document.querySelector("#countDeadlines"),
+      countTbd: document.querySelector("#countTbd"), mapLegend: document.querySelector("#mapLegend"),
+      details: document.querySelector("#details"), dataRows: document.querySelector("#dataRows")
+    };
+
+    function text(value) { return value === null || value === undefined || value === "" ? "TBD" : String(value); }
+    function escapeHtml(value) {
+      return text(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+    }
+    function dueLabel(item) {
+      if (!item.due) return "TBD";
+      const suffix = [item.due_time, item.timezone].filter(Boolean).join(" ");
+      return suffix ? `${item.due} ${suffix}` : item.due;
+    }
+    function hasLocation(item) { return Number.isFinite(item.latitude) && Number.isFinite(item.longitude); }
+    function addOneDay(dateString) {
+      const date = new Date(`${dateString}T00:00:00Z`);
+      date.setUTCDate(date.getUTCDate() + 1);
+      return date.toISOString().slice(0, 10);
+    }
+    function sortRecords(records) {
+      return [...records].sort((a, b) => {
+        const aKey = a.due || a.conference_start || "9999-12-31";
+        const bKey = b.due || b.conference_start || "9999-12-31";
+        return aKey.localeCompare(bKey) || a.name.localeCompare(b.name) || a.year - b.year;
+      });
+    }
+    function sourceLinks(item) { return [...new Set([item.source, ...(item.sources || [])].filter(Boolean))]; }
+
+    function renderOptions() {
+      const names = [...new Set(state.all.map(item => item.name))].sort();
+      const years = [...new Set(state.all.map(item => item.year))].sort();
+      const statuses = [...new Set(state.all.map(item => item.status))].sort();
+      els.conferenceFilter.innerHTML = `<option value="all">All</option>${names.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")}`;
+      els.yearFilter.innerHTML = `<option value="all">All</option>${years.map(year => `<option value="${year}">${year}</option>`).join("")}`;
+      els.statusFilter.innerHTML = `<option value="all">All</option>${statuses.map(status => `<option value="${escapeHtml(status)}">${escapeHtml(status.replaceAll("_", " "))}</option>`).join("")}`;
+    }
+
+    function filterRecords() {
+      const selectedName = els.conferenceFilter.value;
+      const selectedYear = els.yearFilter.value;
+      const selectedStatus = els.statusFilter.value;
+      const query = els.searchFilter.value.trim().toLowerCase();
+      state.filtered = state.all.filter(item => {
+        const haystack = [item.name, item.full_name, item.city, item.country, item.venue, item.conference_date, dueLabel(item), item.note].map(text).join(" ").toLowerCase();
+        return (selectedName === "all" || item.name === selectedName)
+          && (selectedYear === "all" || String(item.year) === selectedYear)
+          && (selectedStatus === "all" || item.status === selectedStatus)
+          && (!query || haystack.includes(query));
+      });
+    }
+
+    function renderStats() {
+      els.countAll.textContent = state.filtered.length;
+      els.countMapped.textContent = state.filtered.filter(hasLocation).length;
+      els.countDeadlines.textContent = state.filtered.filter(item => item.due).length;
+      els.countTbd.textContent = state.filtered.filter(item => item.status === "tbd").length;
+    }
+
+    function renderLegend() {
+      els.mapLegend.innerHTML = [...new Set(state.filtered.map(item => item.name))].sort()
+        .map(name => `<span class="legend-item" style="color: ${COLORS[name] || "#334155"}"><span class="dot"></span>${escapeHtml(name)}</span>`).join("");
+    }
+
+    function popupHtml(item) {
+      return `<div class="popup-title">${escapeHtml(item.name)} ${item.year}</div>
+        <div class="popup-row"><span>Due</span><span>${escapeHtml(dueLabel(item))}</span></div>
+        <div class="popup-row"><span>Date</span><span>${escapeHtml(item.conference_date)}</span></div>
+        <div class="popup-row"><span>City</span><span>${escapeHtml(item.city)}, ${escapeHtml(item.country)}</span></div>
+        <div class="popup-row"><span>Venue</span><span>${escapeHtml(item.venue)}</span></div>
+        <div class="popup-row"><span>Site</span><span><a href="${escapeHtml(item.website)}" target="_blank" rel="noreferrer">open</a></span></div>`;
+    }
+
+    function renderMap() {
+      if (!state.map) {
+        state.map = L.map("map", { scrollWheelZoom: false }).setView([35, 5], 2);
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }).addTo(state.map);
+        state.markerLayer = L.featureGroup().addTo(state.map);
+      }
+      state.markerLayer.clearLayers();
+      state.filtered.filter(hasLocation).forEach(item => {
+        const color = COLORS[item.name] || "#334155";
+        L.circleMarker([item.latitude, item.longitude], {
+          radius: item.status === "confirmed_city" ? 8 : 10,
+          color, fillColor: color, fillOpacity: item.status === "confirmed_city" ? 0.55 : 0.82, weight: 2
+        }).bindPopup(popupHtml(item)).on("click", () => showDetails(item)).addTo(state.markerLayer);
+      });
+      const layers = state.markerLayer.getLayers();
+      if (layers.length) state.map.fitBounds(state.markerLayer.getBounds().pad(0.2));
+      else state.map.setView([35, 5], 2);
+    }
+
+    function calendarEvents(records) {
+      return records.flatMap(item => {
+        const events = [];
+        if (item.due) events.push({ title: `${item.name} ${item.year} due`, start: item.due, allDay: true, color: "var(--deadline)", extendedProps: { item, kind: "Deadline" } });
+        if (item.conference_start && item.conference_end) events.push({ title: `${item.name} ${item.year}`, start: item.conference_start, end: addOneDay(item.conference_end), allDay: true, color: COLORS[item.name] || "var(--accent)", extendedProps: { item, kind: "Conference" } });
+        return events;
+      });
+    }
+
+    function renderCalendar() {
+      const events = calendarEvents(state.filtered);
+      if (!state.calendar) {
+        state.calendar = new FullCalendar.Calendar(document.querySelector("#calendar"), {
+          initialView: "multiMonthYear",
+          initialDate: "2026-01-01",
+          height: "auto",
+          fixedWeekCount: false,
+          headerToolbar: { left: "prev,next today", center: "title", right: "multiMonthYear,dayGridMonth,listYear" },
+          views: { multiMonthYear: { type: "multiMonth", duration: { years: 1 } } },
+          eventClick(info) { showDetails(info.event.extendedProps.item, info.event.extendedProps.kind); },
+          events
+        });
+        state.calendar.render();
+      } else {
+        state.calendar.removeAllEvents();
+        state.calendar.addEventSource(events);
+      }
+    }
+
+    function showDetails(item, kind = "Record") {
+      const links = sourceLinks(item).map((url, index) => `<a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">source ${index + 1}</a>`).join(", ");
+      els.details.innerHTML = `<div class="eyebrow">${escapeHtml(kind)} / ${escapeHtml(item.status.replaceAll("_", " "))}</div>
+        <h3 class="detail-title">${escapeHtml(item.name)} ${item.year}</h3>
+        <dl class="detail-grid">
+          <dt>Full name</dt><dd>${escapeHtml(item.full_name)}</dd>
+          <dt>Due</dt><dd>${escapeHtml(dueLabel(item))}</dd>
+          <dt>City</dt><dd>${escapeHtml(item.city)}</dd>
+          <dt>Country</dt><dd>${escapeHtml(item.country)}</dd>
+          <dt>Date</dt><dd>${escapeHtml(item.conference_date)}</dd>
+          <dt>Venue</dt><dd>${escapeHtml(item.venue)}</dd>
+          <dt>Website</dt><dd><a href="${escapeHtml(item.website)}" target="_blank" rel="noreferrer">${escapeHtml(item.website)}</a></dd>
+          <dt>Source</dt><dd>${links || "TBD"}</dd>
+        </dl><div class="note">${escapeHtml(item.note)}</div>`;
+    }
+
+    function renderRows() {
+      const sorted = sortRecords(state.filtered);
+      els.dataRows.innerHTML = sorted.map((item, index) => {
+        const links = sourceLinks(item).map((url, sourceIndex) => `<a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${sourceIndex + 1}</a>`).join(" ");
+        return `<tr data-index="${index}">
+          <td><b>${escapeHtml(item.name)}</b><br><span class="muted">${escapeHtml(item.full_name)}</span></td>
+          <td>${item.year}</td><td>${escapeHtml(dueLabel(item))}</td><td>${escapeHtml(item.city)}</td><td>${escapeHtml(item.country)}</td>
+          <td>${escapeHtml(item.conference_date)}</td><td>${escapeHtml(item.venue)}</td><td>${links || "TBD"}</td>
+          <td><span class="pill ${escapeHtml(item.status)}">${escapeHtml(item.status.replaceAll("_", " "))}</span></td><td>${escapeHtml(item.note)}</td>
+        </tr>`;
+      }).join("");
+      [...els.dataRows.querySelectorAll("tr")].forEach(row => row.addEventListener("click", () => showDetails(sorted[Number(row.dataset.index)])));
+    }
+
+    function renderAll() {
+      filterRecords(); renderStats(); renderLegend(); renderMap(); renderCalendar(); renderRows();
+      showDetails(sortRecords(state.filtered)[0] || state.all[0]);
+    }
+
+    async function init() {
+      const response = await fetch("conferences.json", { cache: "no-store" });
+      if (!response.ok) throw new Error(`Unable to load conferences.json: ${response.status}`);
+      const data = await response.json();
+      state.all = data.conferences;
+      els.updated.textContent = `Updated: ${data.updated}`;
+      renderOptions(); renderAll();
+      [els.conferenceFilter, els.yearFilter, els.statusFilter].forEach(el => el.addEventListener("change", renderAll));
+      els.searchFilter.addEventListener("input", renderAll);
+    }
+
+    init().catch(error => { els.details.innerHTML = `<div class="note">${escapeHtml(error.message)}</div>`; console.error(error); });
+  </script>
+</body>
+</html>
