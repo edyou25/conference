@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-03",
+  "updated": "2026-06-17",
   "schema": [
     "name",
     "year",
@@ -242,6 +242,96 @@
       "sources": [],
       "status": "tbd",
       "note": "No official ICHMI 2027 conference page, date, venue, or deadline was found as of 2026-06-03."
+    },
+    {
+      "name": "HRI",
+      "full_name": "ACM/IEEE International Conference on Human-Robot Interaction",
+      "year": 2026,
+      "due": "2025-09-30",
+      "due_time": "23:59",
+      "timezone": "AoE",
+      "city": "Edinburgh",
+      "country": "United Kingdom",
+      "conference_date": "2026-03-16 to 2026-03-19",
+      "conference_start": "2026-03-16",
+      "conference_end": "2026-03-19",
+      "venue": "Edinburgh International Conference Centre, Edinburgh",
+      "latitude": 55.9464,
+      "longitude": -3.2083,
+      "website": "https://humanrobotinteraction.org/2026/",
+      "source": "https://humanrobotinteraction.org/2026/full-papers/",
+      "sources": [
+        "https://humanrobotinteraction.org/2026/",
+        "https://humanrobotinteraction.org/2026/registration-information/"
+      ],
+      "status": "confirmed",
+      "note": "Official full paper deadline is Sep 30, 2025, 11:59 pm AoE; abstracts were required by Sep 22, 2025."
+    },
+    {
+      "name": "HRI",
+      "full_name": "ACM/IEEE International Conference on Human-Robot Interaction",
+      "year": 2027,
+      "due": null,
+      "due_time": null,
+      "timezone": null,
+      "city": "Santa Clara",
+      "country": "United States",
+      "conference_date": "2027-03-08 to 2027-03-12",
+      "conference_start": "2027-03-08",
+      "conference_end": "2027-03-12",
+      "venue": "Santa Clara, CA",
+      "latitude": 37.3541,
+      "longitude": -121.9552,
+      "website": "https://humanrobotinteraction.org/2027/",
+      "source": "https://humanrobotinteraction.org/2027/",
+      "sources": [],
+      "status": "confirmed_dates",
+      "note": "Official site lists the conference dates and city; full paper deadline and specific venue are TBD as of 2026-06-17."
+    },
+    {
+      "name": "RSS",
+      "full_name": "Robotics: Science and Systems",
+      "year": 2026,
+      "due": "2026-01-30",
+      "due_time": "23:59",
+      "timezone": "AoE",
+      "city": "Sydney",
+      "country": "Australia",
+      "conference_date": "2026-07-13 to 2026-07-17",
+      "conference_start": "2026-07-13",
+      "conference_end": "2026-07-17",
+      "venue": "International Convention Centre Sydney, 14 Darling Dr, Sydney NSW 2000",
+      "latitude": -33.8746,
+      "longitude": 151.1997,
+      "website": "https://roboticsconference.org/",
+      "source": "https://roboticsconference.org/information/cfp/",
+      "sources": [
+        "https://roboticsconference.org/",
+        "https://roboticsconference.org/attending/travel/"
+      ],
+      "status": "confirmed",
+      "note": "Official CFP lists the paper submission deadline. The official site also states RSS 2026 is held at the University of Technology Sydney and ICC Sydney; venue page lists ICC Sydney."
+    },
+    {
+      "name": "RSS",
+      "full_name": "Robotics: Science and Systems",
+      "year": 2027,
+      "due": null,
+      "due_time": null,
+      "timezone": null,
+      "city": null,
+      "country": null,
+      "conference_date": null,
+      "conference_start": null,
+      "conference_end": null,
+      "venue": null,
+      "latitude": null,
+      "longitude": null,
+      "website": "https://roboticsconference.org/",
+      "source": "https://roboticsconference.org/",
+      "sources": [],
+      "status": "tbd",
+      "note": "No official RSS 2027 conference page, date, venue, or main paper deadline was found as of 2026-06-17."
     }
   ]
 }
